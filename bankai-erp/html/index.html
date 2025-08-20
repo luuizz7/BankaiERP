@@ -1,0 +1,149 @@
+<section id="page-dashboard" class="page">
+  <div class="row g-3">
+    <div class="col-xl-3 col-md-6">
+      <div class="card dash-card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="fs-3 mb-1" id="kpiSaldo">$0,00</h4>
+              <p class="text-muted mb-0">Saldo Estimado</p>
+            </div>
+            <div class="text-end">
+              <p class="text-success mb-1">+0.0%</p>
+              <div class="dash-icon-box bg-success-subtle"><i class="bi bi-arrow-up-right"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+      <div class="card dash-card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="fs-3 mb-1" id="kpiReceber">$0,00</h4>
+              <p class="text-muted mb-0">A Receber (Pendente)</p>
+            </div>
+            <div class="text-end">
+              <p class="text-success mb-1">+0.0%</p>
+              <div class="dash-icon-box bg-success-subtle"><i class="bi bi-arrow-up-right"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+      <div class="card dash-card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="fs-3 mb-1" id="kpiPagar">$0,00</h4>
+              <p class="text-muted mb-0">A Pagar (Pendente)</p>
+            </div>
+            <div class="text-end">
+              <p class="text-danger mb-1">-0.0%</p>
+              <div class="dash-icon-box bg-danger-subtle"><i class="bi bi-arrow-down-left"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+      <div class="card dash-card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="fs-3 mb-1" id="kpiLow">0</h4>
+              <p class="text-muted mb-0">Estoque Baixo</p>
+            </div>
+            <div class="text-end">
+              <p class="text-warning mb-1">Atenção</p>
+              <div class="dash-icon-box bg-warning-subtle"><i class="bi bi-exclamation-triangle"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-md-8">
+      <div class="card dash-card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Histórico de Transações</h5>
+          <div class="row align-items-center">
+            <div class="col-md-5">
+              <canvas id="transaction-chart" height="200"></canvas>
+            </div>
+            <div class="col-md-7">
+              <div class="transaction-item d-flex justify-content-between align-items-center py-3 border-bottom">
+                <div>
+                  <h6 class="mb-0">Transferência para Paypal</h6>
+                  <small class="text-muted">07 Jan 2025, 09:12AM</small>
+                </div>
+                <span class="fw-semibold">$236</span>
+              </div>
+              <div class="transaction-item d-flex justify-content-between align-items-center py-3">
+                <div>
+                  <h6 class="mb-0">Transferência para Stripe</h6>
+                  <small class="text-muted">07 Jan 2025, 09:12AM</small>
+                </div>
+                <span class="fw-semibold">$593</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card dash-card h-100">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Estoque Baixo</h5>
+          <ul id="listLowStock" class="list-group list-group-flush small"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-md-4">
+      <div class="card dash-card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="text-muted mb-1">Receita</p>
+              <h4 class="fs-3 mb-0">$32123</h4>
+            </div>
+            <div class="summary-icon-box text-primary"><i class="bi bi-briefcase fs-1"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card dash-card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="text-muted mb-1">Vendas</p>
+              <h4 class="fs-3 mb-0">$45850</h4>
+            </div>
+            <div class="summary-icon-box text-danger"><i class="bi bi-receipt fs-1"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card dash-card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="text-muted mb-1">Compras</p>
+              <h4 class="fs-3 mb-0">$2039</h4>
+            </div>
+            <div class="summary-icon-box text-success"><i class="bi bi-pc-display fs-1"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

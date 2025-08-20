@@ -1,0 +1,146 @@
+:root{
+  --bg:#0f1115;
+  --bg-soft:#161a22;
+  --card:#171b23;
+  --text:#e9edf1;
+  --muted:#8b97a7;
+  --primary:#4ca3ff;
+  --success:#4cd4a1;
+  --danger:#ff6b6b;
+  --warning:#ffc361;
+}
+
+html,body{height:100%;}
+body.theme-dark{background:var(--bg); color:var(--text);}
+
+.app{min-height:100vh;}
+.sidebar{
+  width:270px; background:var(--bg-soft); border-right:1px solid #141821; min-height:100vh;
+  position:sticky; top:0;
+}
+.sidebar .avatar{
+  width:38px; height:38px; border-radius:10px; display:grid; place-items:center;
+  background:var(--primary); color:#0a0d12; font-size:20px;
+}
+.sidebar .nav-link{
+  color:var(--muted); border-radius:10px; padding:.6rem .75rem;
+}
+.sidebar .nav-link:hover{background:rgba(255,255,255,.04); color:var(--text);}
+.sidebar .nav-link.active{background:var(--primary); color:#0b0e14;}
+
+.topbar{
+  height:60px; background:var(--bg-soft); border-bottom:1px solid #141821;
+}
+
+.content{max-width:1400px; margin:0 auto;}
+
+.card{background:var(--card); border:1px solid #222734;}
+.table{--bs-table-bg:transparent; --bs-table-color:var(--text);}
+.table thead th{color:#b7c0cf; border-color:#232837;}
+.table td, .table th{border-color:#232837;}
+
+.kpi-icon{
+  width:42px; height:42px; display:grid; place-items:center; border-radius:10px;
+}
+.bg-success-subtle{background:rgba(76,212,161,.15) !important; color:var(--success) !important;}
+.bg-primary-subtle{background:rgba(76,163,255,.15) !important; color:var(--primary) !important;}
+.bg-danger-subtle{background:rgba(255,107,107,.15) !important; color:var(--danger) !important;}
+.bg-warning-subtle{background:rgba(255,195,97,.15) !important; color:#f3b44e !important;}
+
+.btn-close-white{filter:invert(1);}
+.modal-content{background:var(--card); color:var(--text); border:1px solid #232837;}
+.form-control,.form-select{background:#11151d; border-color:#2a3242; color:var(--text);}
+.form-control:focus,.form-select:focus{background:#0e1219; border-color:#3c465e; color:var(--text); box-shadow:none;}
+.list-group-item{background:transparent; color:var(--text); border-color:#232837;}
+
+@media (max-width: 991.98px){
+  .sidebar{position:fixed; left:-270px; transition:all .25s; z-index:1040;}
+  .sidebar.show{left:0;}
+}
+
+
+/* Estilos inspirados no Template Corona */
+
+/* Ajustes gerais e cores */
+:root {
+  --bg: #191c24;
+  --bg-soft: #191c24;
+  --card: #2A3038;
+  --text: #ffffff;
+  --muted: #6c7293;
+  --primary: #007bff;
+  --success: #00d25b;
+  --danger: #fc424a;
+  --warning: #ffab00;
+  --border-color: #434654;
+}
+
+body.theme-dark {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.card {
+  background-color: var(--card);
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+}
+
+.text-success { color: var(--success) !important; }
+.text-danger { color: var(--danger) !important; }
+.text-warning { color: var(--warning) !important; }
+.text-muted { color: var(--muted) !important; }
+
+/* Estilo para os cards do dashboard */
+.dash-card {
+  background-color: var(--card);
+  transition: all 0.3s ease;
+}
+
+.dash-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.dash-icon-box {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.summary-icon-box {
+  opacity: 0.8;
+}
+
+/* Itens de transação */
+.transaction-item {
+  border-color: var(--border-color) !important;
+}
+.transaction-item:last-child {
+  border-bottom: none !important;
+}
+
+/* Lista de Estoque Baixo (Open Projects no template) */
+#listLowStock .list-group-item {
+  background: transparent;
+  border-color: var(--border-color);
+  padding: 1rem 0;
+  color: var(--text);
+}
+
+#listLowStock .list-group-item:first-child {
+  border-top: none;
+}
+
+#listLowStock .list-group-item span:first-child {
+  font-weight: 500;
+}
+
+#listLowStock .badge {
+  background-color: var(--warning) !important;
+  color: #111 !important;
+}
