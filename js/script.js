@@ -16,10 +16,15 @@ function loadStore(){
 }
 function saveStore(s){ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }
 
+// Função que cria dados iniciais apenas uma vez, se necessário.
 function seed(){
-  const s = loadStore();
-  if(s.products.length) return;
+  const raw = localStorage.getItem(STORE_KEY);
+  // Se a chave já existe no localStorage, não faz nada.
+  if(raw) return;
+
   const today = new Date().toISOString().slice(0,10);
+  const s = {...emptyStore}; // Começa com uma loja vazia
+
   s.products = [
     {id:crypto.randomUUID(), sku:'P-001', name:'Camiseta Básica', category:'Vestuário', qty:30, min:10, price:39.9},
     {id:crypto.randomUUID(), sku:'P-002', name:'Caneta Azul', category:'Papelaria', qty:200, min:50, price:2.5},
@@ -46,35 +51,15 @@ const fmtBRL = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const id = sel => document.querySelector(sel);
 const all = sel => document.querySelectorAll(sel);
 
-function routeTo(hash){
-  all('.nav-link').forEach(a=>a.classList.remove('active'));
-  const link = document.querySelector(`a[href="${hash}"]`);
-  if(link) link.classList.add('active');
-
-  all('.page').forEach(p=>p.classList.add('d-none'));
-  const page = id(`#page-${hash.replace('#','')}`);
-  if(page) page.classList.remove('d-none');
-
-  // renders
-  switch(hash){
-    case '#dashboard': renderDashboard(); break;
-    case '#financeiro': renderFinanceiro(); break;
-    case '#estoque': renderEstoque(); break;
-    case '#vendas': renderVendas(); break;
-    case '#clientes': renderClientes(); break;
-    case '#relatorios': renderRelatorios(); break;
-    case '#automacao': renderAutomacao(); break;
-  }
-}
-
 /* ========= Dashboard ========= */
-let chartFluxo;
 function renderDashboard(){
   const s = loadStore();
   const pendReceber = s.cashflows.filter(c=>c.type==='receber' && c.status!=='pago').reduce((a,c)=>a+c.amount,0);
   const pendPagar   = s.cashflows.filter(c=>c.type==='pagar'   && c.status!=='pago').reduce((a,c)=>a+c.amount,0);
   const saldo       = s.cashflows.reduce((a,c)=>a + (c.type==='receber'? c.amount : -c.amount),0);
   const low = s.products.filter(p=>p.qty<=p.min);
+
+  if(!id('#kpiSaldo')) return; // Evita erro se o dashboard não estiver na página
 
   id('#kpiSaldo').textContent   = fmtBRL(saldo);
   id('#kpiReceber').textContent = fmtBRL(pendReceber);
@@ -92,29 +77,22 @@ function renderDashboard(){
     ul.appendChild(li);
   });
 
-// Gráfico de Transações (agora tipo rosca/doughnut)
-  // Nota: Os dados aqui são exemplos para corresponder ao visual.
-  // Você precisará adaptar para usar dados reais do seu store.
   const transactionData = {
     labels: ['Paypal', 'Stripe'],
     datasets: [{
       label: 'Total',
       data: [236, 593],
-      backgroundColor: [
-        '#00d25b', // Verde (success)
-        '#fc424a'  // Vermelho (danger)
-      ],
-      borderColor: '#2A3038', // Cor de fundo do card
+      backgroundColor: ['#00d25b', '#fc424a'],
+      borderColor: '#2A3038',
       borderWidth: 3,
-      cutout: '75%' // Cria o efeito de "rosca" mais fina
+      cutout: '75%'
     }]
   };
 
   const ctx = document.getElementById('transaction-chart');
-  // Renomeamos o chartFluxo para evitar confusão se o ID antigo ainda existir
   let transactionChart;
-  if(transactionChart) { transactionChart.destroy(); }
-  transactionChart = new Chart(ctx, {
+  if(window.transactionChart) { window.transactionChart.destroy(); }
+  window.transactionChart = new Chart(ctx, {
     type: 'doughnut',
     data: transactionData,
     options: {
@@ -122,13 +100,12 @@ function renderDashboard(){
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false // Esconde a legenda como no template
+          display: false
         }
       }
     }
   });
 
-  // Automação: alerta estoque baixo
   const prefs = loadPrefs();
   if(prefs.alertLow && low.length){
     toast(`Atenção: ${low.length} produto(s) com estoque baixo.`);
@@ -147,9 +124,9 @@ function renderFinanceiro(){
       <td><span class="badge ${c.type==='receber'?'text-bg-success':'text-bg-danger'}">${c.type}</span></td>
       <td>${c.desc}</td>
       <td>${fmtBRL(c.amount)}</td>
-      <td><span class="badge ${c.status==='pago'?'text-bg-success':'text-bg-warning'}">${c.status}</span></td>
+      <td><span class="badge ${c.status==='pago'?'text-bg-primary':'text-bg-warning'}">${c.status}</span></td>
       <td class="text-end">
-        <button class="btn btn-sm btn-outline-success me-1" data-act="pay" data-id="${c.id}">baixar</button>
+        ${c.status !== 'pago' ? `<button class="btn btn-sm btn-outline-success me-1" data-act="pay" data-id="${c.id}">baixar</button>` : ''}
         <button class="btn btn-sm btn-outline-danger" data-act="del" data-id="${c.id}"><i class="bi bi-trash"></i></button>
       </td>`;
     tbody.appendChild(tr);
@@ -163,11 +140,11 @@ function renderFinanceiro(){
     if(i<0) return;
     if(act==='del') s2.cashflows.splice(i,1);
     if(act==='pay') s2.cashflows[i].status='pago';
-    saveStore(s2); renderFinanceiro(); renderDashboard();
+    saveStore(s2); renderFinanceiro();
   };
 }
 
-id('#formLanc').addEventListener('submit', e=>{
+id('#formLanc')?.addEventListener('submit', e=>{
   e.preventDefault();
   const fd = new FormData(e.target);
   const obj = Object.fromEntries(fd.entries());
@@ -179,7 +156,7 @@ id('#formLanc').addEventListener('submit', e=>{
   saveStore(s);
   e.target.reset();
   bootstrap.Modal.getInstance(document.getElementById('modalLanc')).hide();
-  renderFinanceiro(); renderDashboard();
+  renderFinanceiro();
 });
 
 /* ========= Estoque ========= */
@@ -214,7 +191,7 @@ function renderEstoque(){
     if(act==='inc') s2.products[i].qty++;
     if(act==='dec') s2.products[i].qty = Math.max(0, s2.products[i].qty-1);
     if(act==='del') s2.products.splice(i,1);
-    saveStore(s2); renderEstoque(); renderDashboard();
+    saveStore(s2); renderEstoque();
   };
 
   id('#btnExportCSV').onclick = ()=>{
@@ -224,7 +201,7 @@ function renderEstoque(){
   };
 }
 
-id('#formProd').addEventListener('submit', e=>{
+id('#formProd')?.addEventListener('submit', e=>{
   e.preventDefault();
   const fd = new FormData(e.target); const obj = Object.fromEntries(fd.entries());
   const s = loadStore();
@@ -238,7 +215,7 @@ id('#formProd').addEventListener('submit', e=>{
   s.products.push(obj); saveStore(s);
   e.target.reset();
   bootstrap.Modal.getInstance(document.getElementById('modalProd')).hide();
-  renderEstoque(); renderDashboard();
+  renderEstoque();
 });
 
 /* ========= Clientes ========= */
@@ -265,7 +242,7 @@ function renderClientes(){
   };
 }
 
-id('#formCliente').addEventListener('submit', e=>{
+id('#formCliente')?.addEventListener('submit', e=>{
   e.preventDefault();
   const fd = new FormData(e.target); const obj = Object.fromEntries(fd.entries());
   obj.id = crypto.randomUUID();
@@ -278,7 +255,6 @@ id('#formCliente').addEventListener('submit', e=>{
 /* ========= Vendas ========= */
 function renderVendas(){
   const s = loadStore();
-  // tabela
   const tb = id('#tbVendas'); tb.innerHTML='';
   s.sales.forEach(v=>{
     const itCount = v.items.reduce((a,i)=>a+i.qty,0);
@@ -298,15 +274,14 @@ function renderVendas(){
     const s2 = loadStore();
     const i = s2.sales.findIndex(x=>x.id===btn.dataset.id);
     if(i>=0) s2.sales.splice(i,1);
-    saveStore(s2); renderVendas(); renderRelatorios(); renderDashboard();
+    saveStore(s2); renderVendas();
   };
 
-  // preencher clientes e 1 linha de item no modal
   const sel = id('#selClienteVenda');
   sel.innerHTML = loadStore().customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
   const area = id('#areaItens'); area.innerHTML=''; addItemRow(); updateTotal();
 }
-id('#btnAddItem').addEventListener('click', addItemRow);
+id('#btnAddItem')?.addEventListener('click', addItemRow);
 
 function addItemRow(){
   const s = loadStore();
@@ -328,9 +303,10 @@ function addItemRow(){
       <input class="form-control item-price" type="number" step="0.01" value="0">
     </div>`;
   id('#areaItens').appendChild(row);
-  // set default price
   const sel = row.querySelector('.item-sku');
-  row.querySelector('.item-price').value = parseFloat(sel.selectedOptions[0].dataset.price||'0');
+  if(sel.selectedOptions[0]) {
+    row.querySelector('.item-price').value = parseFloat(sel.selectedOptions[0].dataset.price||'0');
+  }
   row.addEventListener('change', updateTotal);
 }
 
@@ -344,7 +320,7 @@ function updateTotal(){
   id('#totalVenda').textContent = fmtBRL(total);
 }
 
-id('#formVenda').addEventListener('submit', e=>{
+id('#formVenda')?.addEventListener('submit', e=>{
   e.preventDefault();
   const s = loadStore();
   const fd = new FormData(e.target);
@@ -360,30 +336,28 @@ id('#formVenda').addEventListener('submit', e=>{
   const total = items.reduce((a,i)=>a+i.qty*i.price,0);
   const sale = {id:crypto.randomUUID(), date, customerId, items, total};
   s.sales.push(sale);
-  // baixa estoque + cria a receber
   sale.items.forEach(it=>{
     const p = s.products.find(pp=>pp.sku===it.sku);
     if(p) p.qty = Math.max(0, p.qty - it.qty);
   });
-  s.cashflows.push({id:crypto.randomUUID(), date, type:'receber', desc:'Venda', amount:total, status:'pendente'});
+  s.cashflows.push({id:crypto.randomUUID(), date, type:'receber', desc:'Venda #' + sale.id.slice(0,4), amount:total, status:'pendente'});
   saveStore(s);
 
   bootstrap.Modal.getInstance(document.getElementById('modalVenda')).hide();
-  renderVendas(); renderEstoque(); renderDashboard(); renderRelatorios();
+  renderVendas();
 });
 
 /* ========= Relatórios ========= */
-let chartResumo, chartVendas;
 function renderRelatorios(){
   const s = loadStore();
   const receber = s.cashflows.filter(c=>c.type==='receber').reduce((a,c)=>a+c.amount,0);
   const pagar   = s.cashflows.filter(c=>c.type==='pagar').reduce((a,c)=>a+c.amount,0);
 
   const ctx1 = document.getElementById('chartResumo');
-  if(chartResumo) chartResumo.destroy();
-  chartResumo = new Chart(ctx1, {
+  if(window.chartResumo) window.chartResumo.destroy();
+  window.chartResumo = new Chart(ctx1, {
     type:'doughnut',
-    data:{ labels:['Receber','Pagar'], datasets:[{ data:[receber,pagar] }]},
+    data:{ labels:['Receber','Pagar'], datasets:[{ data:[receber,pagar], backgroundColor: ['#00d25b', '#fc424a'] }]},
     options:{ responsive:true }
   });
 
@@ -393,10 +367,10 @@ function renderRelatorios(){
   const data = Object.values(map);
 
   const ctx2 = document.getElementById('chartVendas');
-  if(chartVendas) chartVendas.destroy();
-  chartVendas = new Chart(ctx2, {
+  if(window.chartVendas) window.chartVendas.destroy();
+  window.chartVendas = new Chart(ctx2, {
     type:'bar',
-    data:{ labels, datasets:[{ label:'Qtd', data }] },
+    data:{ labels, datasets:[{ label:'Qtd', data, backgroundColor: '#007bff' }] },
     options:{ responsive:true, plugins:{legend:{display:false}} }
   });
 
@@ -404,10 +378,10 @@ function renderRelatorios(){
     download('bankai-dados.json', JSON.stringify(loadStore(), null, 2), 'application/json');
   };
   id('#btnReset').onclick = ()=>{
-    if(confirm('Tem certeza que deseja limpar todos os dados?')){
-      localStorage.removeItem(STORE_KEY); seed();
-      renderDashboard(); renderFinanceiro(); renderEstoque(); renderClientes(); renderVendas(); renderRelatorios();
-      toast('Dados resetados.');
+    if(confirm('Tem certeza que deseja limpar todos os dados? Esta ação não pode ser desfeita.')){
+      localStorage.removeItem(STORE_KEY);
+      localStorage.removeItem(PREF_KEY);
+      window.location.reload();
     }
   };
 }
@@ -424,14 +398,13 @@ function renderAutomacao(){
   id('#prefBaixa').checked = !!p.autoBaixa;
 }
 
-id('#formAuto').addEventListener('submit', e=>{
+id('#formAuto')?.addEventListener('submit', e=>{
   e.preventDefault();
   const prefs = {
     alertLow: id('#prefLow').checked,
     autoBaixa: id('#prefBaixa').checked
   };
   savePrefs(prefs);
-  // aplicar baixa automática se habilitada
   if(prefs.autoBaixa){
     const s = loadStore();
     let changed = 0;
@@ -462,45 +435,36 @@ function download(filename, data, type){
 
 function toast(msg){
   const el = document.createElement('div');
-  el.className = 'position-fixed bottom-0 end-0 m-3 alert alert-info shadow';
+  el.className = 'position-fixed bottom-0 end-0 p-3';
   el.style.zIndex = 2000;
-  el.textContent = msg;
+  el.innerHTML = `<div class="alert alert-primary shadow-lg">${msg}</div>`;
   document.body.appendChild(el);
   setTimeout(()=>el.remove(), 3000);
 }
 
 /* ========= Sidebar responsive ========= */
-document.getElementById('btnToggleSidebar').addEventListener('click', ()=>{
+id('#btnToggleSidebar')?.addEventListener('click', ()=>{
   document.querySelector('.sidebar').classList.toggle('show');
 });
 
 /* ========= Page Loading Logic ========= */
 document.addEventListener('DOMContentLoaded', () => {
-  // Pega o nome do arquivo atual, ex: "financeiro.html"
-  const path = window.location.pathname.split('/').pop();
-
-  switch (path) {
-    case 'index.html':
-    case '': // Caso o servidor sirva o index.html na raiz
-      renderDashboard();
-      break;
-    case 'financeiro.html':
-      renderFinanceiro();
-      break;
-    case 'estoque.html':
-      renderEstoque();
-      break;
-    case 'vendas.html':
-      renderVendas();
-      break;
-    case 'clientes.html':
-      renderClientes();
-      break;
-    case 'relatorios.html':
-      renderRelatorios();
-      break;
-    case 'automacao.html':
-      renderAutomacao();
-      break;
-  }
+  const path = window.location.pathname;
+  
+  // Atualiza o link ativo na sidebar
+  all('.nav-link').forEach(a => {
+    a.classList.remove('active');
+    if (a.getAttribute('href') === path) {
+      a.classList.add('active');
+    }
+  });
+  
+  // Renderiza o conteúdo da página correta
+  if (path.endsWith('index.html') || path.endsWith('/')) renderDashboard();
+  else if (path.endsWith('financeiro.html')) renderFinanceiro();
+  else if (path.endsWith('estoque.html')) renderEstoque();
+  else if (path.endsWith('vendas.html')) renderVendas();
+  else if (path.endsWith('clientes.html')) renderClientes();
+  else if (path.endsWith('relatorios.html')) renderRelatorios();
+  else if (path.endsWith('automacao.html')) renderAutomacao();
 });
