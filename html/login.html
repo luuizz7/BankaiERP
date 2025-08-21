@@ -6,23 +6,16 @@
   <title>Bankai ERP - Login</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
   <style>
-    :root {
-      --primary-color: #ff842c;
-      --dark-blue: #191c24;
-      --white: #ffffff;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: var(--dark-blue);
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
     }
     .login-container {
-      background-color: var(--white);
+      background-color: var(--bs-white);
       padding: 3rem;
       border-radius: 20px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
@@ -32,9 +25,9 @@
       color: #333;
     }
     .logo-container {
-      width: 80px; height: 80px; background-color: var(--primary-color);
+      width: 80px; height: 80px; background-color: var(--primary);
       border-radius: 50%; display: flex; justify-content: center;
-      align-items: center; margin: 0 auto 1.5rem auto; color: var(--white);
+      align-items: center; margin: 0 auto 1.5rem auto; color: var(--bs-white);
     }
     .logo-container i { font-size: 2.5rem; }
     h2 { font-weight: 600; margin-bottom: 0.5rem; }
@@ -51,24 +44,23 @@
       transition: border-color 0.3s, box-shadow 0.3s;
     }
     .form-input:focus {
-      outline: none; border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(255, 132, 44, 0.25);
+      outline: none; border-color: var(--primary);
     }
     .btn-login {
-      background-color: var(--primary-color); color: var(--white); border: none;
+      background-color: var(--primary); color: var(--bs-white); border: none;
       padding: 1rem; border-radius: 10px; font-size: 1.1rem;
       font-weight: 500; cursor: pointer; text-decoration: none;
       display: block; transition: background-color 0.3s;
     }
     .btn-login:hover { background-color: #e06c1b; }
     .error-message {
-      color: #fc424a;
+      color: var(--danger);
       margin-top: 1rem;
       display: none; /* Começa escondido */
     }
   </style>
 </head>
-<body>
+<body class="theme-dark">
   <div class="login-container">
     <div class="logo-container"><i class="bi bi-cube"></i></div>
     <h2>Bem-vindo(a)!</h2>

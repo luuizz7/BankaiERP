@@ -33,6 +33,8 @@
         <li class="nav-item"><a class="nav-link" href="/html/clientes.html"><i class="bi bi-people me-2"></i>Clientes</a></li>
         <li class="nav-item"><a class="nav-link" href="/html/relatorios.html"><i class="bi bi-graph-up me-2"></i>Relatórios</a></li>
         <li class="nav-item"><a class="nav-link" href="/html/automacao.html"><i class="bi bi-robot me-2"></i>Automação</a></li>
+        <!-- NOVO LINK PARA USUÁRIOS (COMEÇA ESCONDIDO) -->
+        <li class="nav-item d-none" id="nav-usuarios"><a class="nav-link" href="/html/usuarios.html"><i class="bi bi-person-badge me-2"></i>Usuários</a></li>
       </ul>
 
       <hr class="my-4 border-secondary">
@@ -44,8 +46,22 @@
     <div class="main flex-grow-1">
       <header class="topbar d-flex align-items-center justify-content-between px-3">
         <button class="btn btn-outline-light d-lg-none" id="btnToggleSidebar"><i class="bi bi-list"></i></button>
-        <div class="fw-semibold">Bem-vindo(a)</div>
-        <div class="text-muted small">v1.0</div>
+        
+        <div class="ms-auto"></div>
+
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="avatar-sm me-2"><i class="bi bi-person-fill"></i></div>
+            <!-- NOME DO USUÁRIO AGORA É DINÂMICO -->
+            <span class="user-name">Usuário</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser">
+            <li><a class="dropdown-item" href="/html/configuracoes.html"><i class="bi bi-gear-wide-connected me-2"></i>Configurações</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <!-- BOTÃO SAIR AGORA FUNCIONA COM O SCRIPT -->
+            <li><a class="dropdown-item btn-logout" href="#"><i class="bi bi-box-arrow-right me-2"></i>Sair</a></li>
+          </ul>
+        </div>
       </header>
 
       <main class="content p-3 p-md-4">
@@ -74,7 +90,7 @@
                   <div class="d-flex justify-content-between align-items-center">
                     <div>
                       <h4 class="fs-3 mb-1" id="kpiReceber">$0,00</h4>
-                      <p class="text-muted mb-0">A Receber (Pendente)</p>
+                      <p class="text-muted mb-0">A Receber</p>
                     </div>
                     <div class="text-end">
                       <p class="text-success mb-1">+0.0%</p>
@@ -90,7 +106,7 @@
                   <div class="d-flex justify-content-between align-items-center">
                     <div>
                       <h4 class="fs-3 mb-1" id="kpiPagar">$0,00</h4>
-                      <p class="text-muted mb-0">A Pagar (Pendente)</p>
+                      <p class="text-muted mb-0">A Pagar</p>
                     </div>
                     <div class="text-end">
                       <p class="text-danger mb-1">-0.0%</p>
@@ -130,17 +146,17 @@
                     <div class="col-md-7">
                       <div class="transaction-item d-flex justify-content-between align-items-center py-3 border-bottom">
                         <div>
-                          <h6 class="mb-0">Transferência para Paypal</h6>
-                          <small class="text-muted">07 Jan 2025, 09:12AM</small>
+                          <h6 class="mb-0">Entradas Recentes</h6>
+                          <small class="text-muted">Hoje</small>
                         </div>
-                        <span class="fw-semibold">$236</span>
+                        <span class="fw-semibold">$1200</span>
                       </div>
                       <div class="transaction-item d-flex justify-content-between align-items-center py-3">
                         <div>
-                          <h6 class="mb-0">Transferência para Stripe</h6>
-                          <small class="text-muted">07 Jan 2025, 09:12AM</small>
+                          <h6 class="mb-0">Saídas Recentes</h6>
+                          <small class="text-muted">Hoje</small>
                         </div>
-                        <span class="fw-semibold">$593</span>
+                        <span class="fw-semibold">$829</span>
                       </div>
                     </div>
                   </div>
@@ -152,48 +168,6 @@
                 <div class="card-body">
                   <h5 class="card-title mb-3">Estoque Baixo</h5>
                   <ul id="listLowStock" class="list-group list-group-flush small"></ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        
-          <div class="row g-3 mt-1">
-            <div class="col-md-4">
-              <div class="card dash-card">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                      <p class="text-muted mb-1">Receita</p>
-                      <h4 class="fs-3 mb-0">$32123</h4>
-                    </div>
-                    <div class="summary-icon-box text-primary"><i class="bi bi-briefcase fs-1"></i></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="card dash-card">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                      <p class="text-muted mb-1">Vendas</p>
-                      <h4 class="fs-3 mb-0">$45850</h4>
-                    </div>
-                    <div class="summary-icon-box text-danger"><i class="bi bi-receipt fs-1"></i></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="card dash-card">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                      <p class="text-muted mb-1">Compras</p>
-                      <h4 class="fs-3 mb-0">$2039</h4>
-                    </div>
-                    <div class="summary-icon-box text-success"><i class="bi bi-pc-display fs-1"></i></div>
-                  </div>
                 </div>
               </div>
             </div>

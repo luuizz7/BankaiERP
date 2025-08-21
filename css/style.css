@@ -1,67 +1,145 @@
+/* Importa a fonte 'Inter', ideal para interfaces de usuário */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Paleta de cores baseada no template e na cor laranja */
 :root {
   --bg: #191c24;
-  --bg-soft: #191c24;
   --card: #2A3038;
   --text: #ffffff;
-  --muted: #6c7293;
-  --primary: #007bff;
+  --muted: #e0e0e0; /* Clareado para melhorar leitura */
+  --primary: #ff842c;
   --success: #00d25b;
   --danger: #fc424a;
-  --warning: #ffab00;
+  --warning: #ffae0b;
   --border-color: #434654;
 }
 
-html,body{height:100%;}
-body.theme-dark{background:var(--bg); color:var(--text);}
-
-.app{min-height:100vh;}
-.sidebar{
-  width:270px; background:var(--bg-soft); border-right:1px solid var(--border-color); min-height:100vh;
-  position:sticky; top:0;
-}
-.sidebar .avatar{
-  width:38px; height:38px; border-radius:10px; display:grid; place-items:center;
-  background:var(--primary); color:#fff; font-size:20px;
-}
-.sidebar .nav-link{
-  color:var(--muted); border-radius:10px; padding:.6rem .75rem;
-}
-.sidebar .nav-link:hover{background:rgba(255,255,255,.04); color:var(--text);}
-.sidebar .nav-link.active{background:var(--primary); color:#fff;}
-
-.topbar{
-  height:60px; background:var(--bg-soft); border-bottom:1px solid var(--border-color);
+html, body {
+  height: 100%;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
 }
 
-.content{max-width:1400px; margin:0 auto;}
+*, *::before, *::after {
+  color: var(--text) !important; /* Força branco puro */
+}
 
-.card{
+/* Força textos escuros ou apagados a ficarem brancos */
+h1, h2, h3, h4, h5, h6, p, span, div, a, li, th, td, label, small, strong {
+  color: var(--text) !important;
+  opacity: 1 !important;
+}
+
+/* --- App Wrapper --- */
+.app {
+  min-height: 100vh;
+}
+
+/* --- Sidebar --- */
+.sidebar {
+  width: 270px;
+  background-color: var(--bg);
+  border-right: 1px solid var(--border-color);
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+}
+.sidebar .avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 20px;
+}
+.sidebar .nav-link {
+  color: var(--text);
+  border-radius: 8px;
+  padding: .6rem .75rem;
+  font-weight: 500;
+}
+.sidebar .nav-link:hover {
+  background: rgba(255, 255, 255, .04);
+  color: var(--text);
+}
+.sidebar .nav-link.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* --- Topbar --- */
+.topbar {
+  height: 60px;
+  background-color: var(--bg);
+  border-bottom: 1px solid var(--border-color);
+}
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--card);
+  font-size: 18px;
+}
+.dropdown-menu {
+  border-color: var(--border-color);
+  background: var(--card);
+  color: var(--text);
+}
+
+/* --- Conteúdo Principal --- */
+.content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.card {
   background-color: var(--card);
+  border: none;
+  border-radius: 0.5rem;
+  color: var(--text);
+}
+.card-header {
+  background-color: transparent;
+  border-bottom: 1px solid var(--border-color);
+}
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--text);
+}
+.table thead th {
+  color: var(--text);
+  border-color: var(--border-color);
+}
+.table td, .table th {
+  border-color: var(--border-color);
+}
+
+/* --- Modais e Formulários --- */
+.modal-content {
+  background: var(--card);
+  color: var(--text);
   border: 1px solid var(--border-color);
-  border-radius: 0.25rem;
 }
-.table{--bs-table-bg:transparent; --bs-table-color:var(--text);}
-.table thead th{color:#b7c0cf; border-color:var(--border-color);}
-.table td, .table th{border-color:var(--border-color);}
-
-.bg-success-subtle{background:rgba(0, 210, 91,.15) !important; color:var(--success) !important;}
-.bg-primary-subtle{background:rgba(0, 123, 255,.15) !important; color:var(--primary) !important;}
-.bg-danger-subtle{background:rgba(252, 66, 74,.15) !important; color:var(--danger) !important;}
-.bg-warning-subtle{background:rgba(255, 171, 0,.15) !important; color:var(--warning) !important;}
-
-.btn-close-white{filter:invert(1);}
-.modal-content{background:var(--card); color:var(--text); border:1px solid var(--border-color);}
-.form-control,.form-select{background:#11151d; border-color:#32394e; color:var(--text);}
-.form-control:focus,.form-select:focus{background:#0e1219; border-color:var(--primary); color:var(--text); box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);}
-.list-group-item{background:transparent; color:var(--text); border-color:var(--border-color);}
-
-/* Estilos do Dashboard Corona */
-.dash-card {
-  transition: all 0.3s ease;
+.form-control, .form-select {
+  background: #11151d;
+  border-color: #32394e;
+  color: var(--text);
 }
+.form-control:focus, .form-select:focus {
+  background: #0e1219;
+  border-color: var(--primary);
+  color: var(--text);
+  box-shadow: 0 0 0 0.25rem rgba(255, 132, 44, 0.25);
+}
+
+/* --- Estilos do Dashboard --- */
 .dash-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 .dash-icon-box {
   width: 32px;
@@ -71,15 +149,7 @@ body.theme-dark{background:var(--bg); color:var(--text);}
   justify-content: center;
   border-radius: 50%;
   font-size: 1rem;
-}
-.summary-icon-box {
-  opacity: 0.8;
-}
-.transaction-item {
-  border-color: var(--border-color) !important;
-}
-.transaction-item:last-child {
-  border-bottom: none !important;
+  color: var(--text);
 }
 #listLowStock .list-group-item {
   background: transparent;
@@ -87,18 +157,31 @@ body.theme-dark{background:var(--bg); color:var(--text);}
   padding: 1rem 0;
   color: var(--text);
 }
-#listLowStock .list-group-item:first-child {
-  border-top: none;
-}
-#listLowStock .list-group-item span:first-child {
-  font-weight: 500;
-}
 #listLowStock .badge {
   background-color: var(--warning) !important;
   color: #111 !important;
 }
 
-@media (max-width: 991.98px){
-  .sidebar{position:fixed; left:-270px; transition:all .25s; z-index:1040;}
-  .sidebar.show{left:0;}
+/* --- Corrige textos apagados ou opacos --- */
+.text-muted, .text-secondary, small {
+  color: var(--muted) !important;
+  opacity: 1 !important;
+}
+
+/* --- Rodapé ou marcas d'água --- */
+footer, .footer-text, .footer {
+  color: var(--muted) !important;
+}
+
+/* --- Responsividade --- */
+@media (max-width: 991.98px) {
+  .sidebar {
+    position: fixed;
+    left: -270px;
+    transition: all .25s;
+    z-index: 1040;
+  }
+  .sidebar.show {
+    left: 0;
+  }
 }
