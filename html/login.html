@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bankai ERP - Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #ff842c;
+      --dark-blue: #191c24;
+      --white: #ffffff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--dark-blue);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .login-container {
+      background-color: var(--white);
+      padding: 3rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 450px;
+      color: #333;
+    }
+    .logo-container {
+      width: 80px; height: 80px; background-color: var(--primary-color);
+      border-radius: 50%; display: flex; justify-content: center;
+      align-items: center; margin: 0 auto 1.5rem auto; color: var(--white);
+    }
+    .logo-container i { font-size: 2.5rem; }
+    h2 { font-weight: 600; margin-bottom: 0.5rem; }
+    .subtitle { color: #8b97a7; margin-bottom: 2rem; }
+    .login-form { display: flex; flex-direction: column; gap: 1.5rem; }
+    .input-group { position: relative; }
+    .input-group i {
+      position: absolute; left: 15px; top: 50%;
+      transform: translateY(-50%); color: #8b97a7;
+    }
+    .form-input {
+      width: 100%; padding: 1rem 1rem 1rem 3rem; border: 1px solid #dbe2ea;
+      border-radius: 10px; font-size: 1rem; font-family: 'Inter', sans-serif;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .form-input:focus {
+      outline: none; border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(255, 132, 44, 0.25);
+    }
+    .btn-login {
+      background-color: var(--primary-color); color: var(--white); border: none;
+      padding: 1rem; border-radius: 10px; font-size: 1.1rem;
+      font-weight: 500; cursor: pointer; text-decoration: none;
+      display: block; transition: background-color 0.3s;
+    }
+    .btn-login:hover { background-color: #e06c1b; }
+    .error-message {
+      color: #fc424a;
+      margin-top: 1rem;
+      display: none; /* Começa escondido */
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo-container"><i class="bi bi-cube"></i></div>
+    <h2>Bem-vindo(a)!</h2>
+    <p class="subtitle">Faça login para acessar o painel.</p>
+    <form id="login-form">
+      <div class="input-group">
+        <i class="bi bi-person"></i>
+        <input type="text" id="username" class="form-input" placeholder="Usuário" required>
+      </div>
+      <div class="input-group">
+        <i class="bi bi-lock"></i>
+        <input type="password" id="password" class="form-input" placeholder="Senha" required>
+      </div>
+      <button type="submit" class="btn-login">Entrar</button>
+    </form>
+    <p id="error-message" class="error-message">Usuário ou senha inválidos.</p>
+  </div>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>
