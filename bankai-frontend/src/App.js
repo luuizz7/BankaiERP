@@ -6,8 +6,8 @@ import Clientes from "./components/Clientes";
 function App() {
   return (
     <Router>
-      <nav style={{ marginBottom: "20px" }}>
-        <Link to="/" style={{ marginRight: "10px" }}>Dashboard</Link>
+      <nav>
+        <Link to="/">Dashboard</Link>{" | "}
         <Link to="/clientes">Clientes</Link>
       </nav>
       <Routes>
