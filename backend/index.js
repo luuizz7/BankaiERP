@@ -1,222 +1,354 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import pg from "pg";
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { Pool } from 'pg';
 
 dotenv.config();
-
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL,
+const pool = new Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 });
 
-// =======================
-// Rota de teste
-// =======================
-app.get("/", (req, res) => {
-  res.send("🚀 Bankai ERP API funcionando!");
+
+
+// -------------------- CLIENTES --------------------
+app.get('/clientes', async (req, res) => {
+  try { const result = await pool.query('SELECT * FROM clientes ORDER BY id'); res.json(result.rows); }
+  catch (err) { res.status(500).send(err.message); }
 });
 
-// =======================
-// CRUD de Clientes
-// =======================
-
-// Listar todos os clientes
-app.get("/clientes", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM clientes ORDER BY id");
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Erro ao buscar clientes");
-  }
-});
-
-// Buscar cliente por ID
-app.get("/clientes/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    const result = await pool.query("SELECT * FROM clientes WHERE id = $1", [id]);
-    if (result.rows.length === 0) {
-      return res.status(404).send("Cliente não encontrado");
-    }
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Erro ao buscar cliente");
-  }
-});
-
-// Criar novo cliente
-app.post("/clientes", async (req, res) => {
+app.post('/clientes', async (req, res) => {
   const { nome, email, telefone } = req.body;
   try {
     const result = await pool.query(
-      "INSERT INTO clientes (nome, email, telefone) VALUES ($1, $2, $3) RETURNING *",
-      [nome, email, telefone]
+      'INSERT INTO clientes (nome, email, telefone) VALUES ($1,$2,$3) RETURNING *',
+      [nome,email,telefone]
     );
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Erro ao criar cliente");
-  }
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).send(err.message); }
 });
 
-// Atualizar cliente
-app.put("/clientes/:id", async (req, res) => {
+app.put('/clientes/:id', async (req, res) => {
   const { id } = req.params;
-  const { nome, email, telefone } = req.body;
+  const { nome,email,telefone } = req.body;
   try {
     const result = await pool.query(
-      "UPDATE clientes SET nome=$1, email=$2, telefone=$3 WHERE id=$4 RETURNING *",
-      [nome, email, telefone, id]
+      'UPDATE clientes SET nome=$1,email=$2,telefone=$3 WHERE id=$4 RETURNING *',
+      [nome,email,telefone,id]
     );
-    if (result.rows.length === 0) {
-      return res.status(404).send("Cliente não encontrado");
-    }
     res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Erro ao atualizar cliente");
-  }
+  } catch(err){res.status(500).send(err.message);}
 });
 
-// Deletar cliente
-app.delete("/clientes/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    const result = await pool.query("DELETE FROM clientes WHERE id=$1 RETURNING *", [id]);
-    if (result.rows.length === 0) {
-      return res.status(404).send("Cliente não encontrado");
-    }
-    res.json({ mensagem: "Cliente deletado com sucesso", cliente: result.rows[0] });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Erro ao deletar cliente");
-  }
+app.delete('/clientes/:id', async (req,res)=>{
+  const {id} = req.params;
+  try {await pool.query('DELETE FROM clientes WHERE id=$1',[id]); res.json({message:'Cliente deletado!'});}
+  catch(err){res.status(500).send(err.message);}
 });
 
-app.get("/produtos", async (req, res) => {
-  const result = await pool.query(
-    `SELECT p.id, p.nome, p.preco, p.estoque_atual, c.nome AS categoria
-     FROM produtos p
-     LEFT JOIN categorias c ON p.categoria_id = c.id
-     ORDER BY p.id`
-  );
-  res.json(result.rows);
+// -------------------- FORNECEDORES --------------------
+app.get('/fornecedores', async (req,res)=>{
+  try {const result = await pool.query('SELECT * FROM fornecedores ORDER BY id'); res.json(result.rows);}
+  catch(err){res.status(500).send(err.message);}
 });
 
-app.get("/vendedores", async (req, res) => {
-  const result = await pool.query("SELECT * FROM vendedores ORDER BY id");
-  res.json(result.rows);
+app.post('/fornecedores', async (req,res)=>{
+  const {nome,cnpj,telefone,email} = req.body;
+  try{
+    const result = await pool.query(
+      'INSERT INTO fornecedores (nome,cnpj,telefone,email) VALUES ($1,$2,$3,$4) RETURNING *',
+      [nome,cnpj,telefone,email]
+    );
+    res.json(result.rows[0]);
+  } catch(err){res.status(500).send(err.message);}
 });
 
-app.get("/estoque", async (req, res) => {
-  const result = await pool.query(
-    `SELECT e.id, p.nome AS produto, e.quantidade, e.tipo_movimento, e.data_movimento
-     FROM estoque e
-     JOIN produtos p ON e.produto_id = p.id
-     ORDER BY e.data_movimento DESC`
-  );
-  res.json(result.rows);
+app.put('/fornecedores/:id', async(req,res)=>{
+  const {id} = req.params;
+  const {nome,cnpj,telefone,email} = req.body;
+  try{
+    const result = await pool.query(
+      'UPDATE fornecedores SET nome=$1,cnpj=$2,telefone=$3,email=$4 WHERE id=$5 RETURNING *',
+      [nome,cnpj,telefone,email,id]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
 });
 
-app.get("/ordens_compra", async (req, res) => {
-  const result = await pool.query(
-    `SELECT o.id, f.nome AS fornecedor, o.data_ordem, o.status
-     FROM ordem_compra o
-     JOIN fornecedores f ON o.fornecedor_id = f.id
-     ORDER BY o.data_ordem DESC`
-  );
-  res.json(result.rows);
+app.delete('/fornecedores/:id', async(req,res)=>{
+  const {id} = req.params;
+  try{await pool.query('DELETE FROM fornecedores WHERE id=$1',[id]); res.json({message:'Fornecedor deletado!'});}
+  catch(err){res.status(500).send(err.message);}
 });
 
-app.get("/notas_entrada", async (req, res) => {
-  const result = await pool.query(
-    `SELECT n.id, o.id AS ordem_id, p.nome AS produto, n.quantidade, n.data_entrada
-     FROM notas_entrada n
-     JOIN ordem_compra o ON n.ordem_id = o.id
-     JOIN produtos p ON n.produto_id = p.id
-     ORDER BY n.data_entrada DESC`
-  );
-  res.json(result.rows);
+// -------------------- CATEGORIAS --------------------
+app.get('/categorias', async(req,res)=>{
+  try{const result = await pool.query('SELECT * FROM categorias ORDER BY id'); res.json(result.rows);}
+  catch(err){res.status(500).send(err.message);}
 });
 
-app.get("/necessidades_compra", async (req, res) => {
-  const result = await pool.query(
-    `SELECT nc.id, p.nome AS produto, nc.quantidade_necessaria, nc.data_registro
-     FROM necessidade_compra nc
-     JOIN produtos p ON nc.produto_id = p.id
-     ORDER BY nc.data_registro DESC`
-  );
-  res.json(result.rows);
+app.post('/categorias', async(req,res)=>{
+  const {nome} = req.body;
+  try{
+    const result = await pool.query(
+      'INSERT INTO categorias (nome) VALUES ($1) RETURNING *',
+      [nome]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
 });
 
-app.get("/pedidos_venda", async (req, res) => {
-  const result = await pool.query(
-    `SELECT p.id, c.nome AS cliente, v.nome AS vendedor, p.data_pedido, p.status, p.total
-     FROM pedidos_venda p
-     JOIN clientes c ON p.cliente_id = c.id
-     JOIN vendedores v ON p.vendedor_id = v.id
-     ORDER BY p.data_pedido DESC`
-  );
-  res.json(result.rows);
+// -------------------- PRODUTOS --------------------
+app.get('/produtos', async(req,res)=>{
+  try{const result = await pool.query('SELECT * FROM produtos ORDER BY id'); res.json(result.rows);}
+  catch(err){res.status(500).send(err.message);}
 });
 
-app.get("/itens_pedido/:pedido_id", async (req, res) => {
-  const { pedido_id } = req.params;
-  const result = await pool.query(
-    `SELECT i.id, pr.nome AS produto, i.quantidade, i.preco_unitario
-     FROM itens_pedido i
-     JOIN produtos pr ON i.produto_id = pr.id
-     WHERE i.pedido_id = $1`,
-    [pedido_id]
-  );
-  res.json(result.rows);
+app.post('/produtos', async(req,res)=>{
+  const {nome,categoria_id,preco,estoque_atual} = req.body;
+  try{
+    const result = await pool.query(
+      'INSERT INTO produtos (nome,categoria_id,preco,estoque_atual) VALUES ($1,$2,$3,$4) RETURNING *',
+      [nome,categoria_id,preco,estoque_atual]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
 });
 
-app.get("/orcamentos", async (req, res) => {
-  const result = await pool.query(
-    `SELECT o.id, c.nome AS cliente, v.nome AS vendedor, o.data_orcamento, o.status, o.total
-     FROM orcamentos o
-     JOIN clientes c ON o.cliente_id = c.id
-     JOIN vendedores v ON o.vendedor_id = v.id
-     ORDER BY o.data_orcamento DESC`
-  );
-  res.json(result.rows);
+// -------------------- VENDEDORES --------------------
+app.get('/vendedores', async(req,res)=>{
+  try{const result = await pool.query('SELECT * FROM vendedores ORDER BY id'); res.json(result.rows);}
+  catch(err){res.status(500).send(err.message);}
 });
 
-app.get("/caixa", async (req, res) => {
-  const result = await pool.query("SELECT * FROM caixa ORDER BY data_movimento DESC");
-  res.json(result.rows);
+app.post('/vendedores', async(req,res)=>{
+  const {nome,email,telefone,salario} = req.body;
+  try{
+    const result = await pool.query(
+      'INSERT INTO vendedores (nome,email,telefone,salario) VALUES ($1,$2,$3,$4) RETURNING *',
+      [nome,email,telefone,salario]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
 });
 
-app.get("/contas_pagar", async (req, res) => {
-  const result = await pool.query(
-    `SELECT cp.id, f.nome AS fornecedor, cp.data_vencimento, cp.valor, cp.status
-     FROM contas_pagar cp
-     JOIN fornecedores f ON cp.fornecedor_id = f.id
-     ORDER BY cp.data_vencimento`
-  );
-  res.json(result.rows);
+// -------------------- ESTOQUE --------------------
+app.get('/estoque', async(req,res)=>{
+  try{const result = await pool.query('SELECT * FROM estoque ORDER BY id DESC'); res.json(result.rows);}
+  catch(err){res.status(500).send(err.message);}
 });
 
-app.get("/contas_receber", async (req, res) => {
-  const result = await pool.query(
-    `SELECT cr.id, c.nome AS cliente, cr.data_vencimento, cr.valor, cr.status
-     FROM contas_receber cr
-     JOIN clientes c ON cr.cliente_id = c.id
-     ORDER BY cr.data_vencimento`
-  );
-  res.json(result.rows);
+app.post('/estoque', async(req,res)=>{
+  const {produto_id,quantidade,tipo_movimento} = req.body;
+  try{
+    const result = await pool.query(
+      'INSERT INTO estoque (produto_id,quantidade,tipo_movimento) VALUES ($1,$2,$3) RETURNING *',
+      [produto_id,quantidade,tipo_movimento]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
 });
 
+// -------------------- ORDEM DE COMPRA --------------------
+app.get('/ordem_compra', async(req,res)=>{
+  try{const result = await pool.query('SELECT * FROM ordem_compra ORDER BY id DESC'); res.json(result.rows);}
+  catch(err){res.status(500).send(err.message);}
+});
 
-// =======================
-// Servidor
-// =======================
+app.post('/ordem_compra', async(req,res)=>{
+  const {fornecedor_id,status} = req.body;
+  try{
+    const result = await pool.query(
+      'INSERT INTO ordem_compra (fornecedor_id,status) VALUES ($1,$2) RETURNING *',
+      [fornecedor_id,status]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
+});
+
+// -------------------- NOTAS DE ENTRADA --------------------
+app.get('/notas_entrada', async(req,res)=>{
+  try{const result = await pool.query('SELECT * FROM notas_entrada ORDER BY id DESC'); res.json(result.rows);}
+  catch(err){res.status(500).send(err.message);}
+});
+
+app.post('/notas_entrada', async(req,res)=>{
+  const {produto_id,quantidade,fornecedor_id,data} = req.body;
+  try{
+    const result = await pool.query(
+      'INSERT INTO notas_entrada (produto_id,quantidade,fornecedor_id,data) VALUES ($1,$2,$3,$4) RETURNING *',
+      [produto_id,quantidade,fornecedor_id,data]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
+});
+
+// -------------------- NOTAS DE SAÍDA --------------------
+app.get('/notas_saida', async(req,res)=>{
+  try{const result = await pool.query('SELECT * FROM notas_saida ORDER BY id DESC'); res.json(result.rows);}
+  catch(err){res.status(500).send(err.message);}
+});
+
+app.post('/notas_saida', async(req,res)=>{
+  const {produto_id,quantidade,cliente_id,data} = req.body;
+  try{
+    const result = await pool.query(
+      'INSERT INTO notas_saida (produto_id,quantidade,cliente_id,data) VALUES ($1,$2,$3,$4) RETURNING *',
+      [produto_id,quantidade,cliente_id,data]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
+});
+
+// -------------------- PEDIDOS DE VENDA --------------------
+app.get('/pedidos_venda', async(req,res)=>{
+  try{const result = await pool.query('SELECT * FROM pedidos_venda ORDER BY id DESC'); res.json(result.rows);}
+  catch(err){res.status(500).send(err.message);}
+});
+
+app.post('/pedidos_venda', async(req,res)=>{
+  const {cliente_id,produto_id,quantidade,status} = req.body;
+  try{
+    const result = await pool.query(
+      'INSERT INTO pedidos_venda (cliente_id,produto_id,quantidade,status) VALUES ($1,$2,$3,$4) RETURNING *',
+      [cliente_id,produto_id,quantidade,status]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
+});
+
+// -------------------- ORÇAMENTOS --------------------
+app.get('/orcamentos', async(req,res)=>{
+  try{const result = await pool.query('SELECT * FROM orcamentos ORDER BY id DESC'); res.json(result.rows);}
+  catch(err){res.status(500).send(err.message);}
+});
+
+app.post('/orcamentos', async(req,res)=>{
+  const {cliente_id,valor,data,status} = req.body;
+  try{
+    const result = await pool.query(
+      'INSERT INTO orcamentos (cliente_id,valor,data,status) VALUES ($1,$2,$3,$4) RETURNING *',
+      [cliente_id,valor,data,status]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
+});
+
+// -------------------- CONTAS A PAGAR --------------------
+app.post('/contas_pagar', async(req,res)=>{
+  const {fornecedor_id,valor,vencimento,status} = req.body;
+  try{
+    const result = await pool.query(
+      'INSERT INTO contas_pagar (fornecedor_id,valor,vencimento,status) VALUES ($1,$2,$3,$4) RETURNING *',
+      [fornecedor_id,valor,vencimento,status]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
+});
+
+app.put('/contas_pagar/:id', async(req,res)=>{
+  const {id} = req.params;
+  const {fornecedor_id,valor,vencimento,status} = req.body;
+  try{
+    const result = await pool.query(
+      'UPDATE contas_pagar SET fornecedor_id=$1,valor=$2,vencimento=$3,status=$4 WHERE id=$5 RETURNING *',
+      [fornecedor_id,valor,vencimento,status,id]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
+});
+
+app.delete('/contas_pagar/:id', async(req,res)=>{
+  const {id} = req.params;
+  try{
+    await pool.query('DELETE FROM contas_pagar WHERE id=$1',[id]);
+    res.json({message:'Conta a pagar deletada!'});
+  }catch(err){res.status(500).send(err.message);}
+});
+
+// -------------------- CONTAS A RECEBER --------------------
+app.get('/contas_receber', async(req,res)=>{
+  try{const result = await pool.query('SELECT * FROM contas_receber ORDER BY id DESC'); res.json(result.rows);}
+  catch(err){res.status(500).send(err.message);}
+});
+
+app.post('/contas_receber', async(req,res)=>{
+  const {cliente_id,valor,vencimento,status} = req.body;
+  try{
+    const result = await pool.query(
+      'INSERT INTO contas_receber (cliente_id,valor,vencimento,status) VALUES ($1,$2,$3,$4) RETURNING *',
+      [cliente_id,valor,vencimento,status]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
+});
+
+app.put('/contas_receber/:id', async(req,res)=>{
+  const {id} = req.params;
+  const {cliente_id,valor,vencimento,status} = req.body;
+  try{
+    const result = await pool.query(
+      'UPDATE contas_receber SET cliente_id=$1,valor=$2,vencimento=$3,status=$4 WHERE id=$5 RETURNING *',
+      [cliente_id,valor,vencimento,status,id]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
+});
+
+app.delete('/contas_receber/:id', async(req,res)=>{
+  const {id} = req.params;
+  try{
+    await pool.query('DELETE FROM contas_receber WHERE id=$1',[id]);
+    res.json({message:'Conta a receber deletada!'});
+  }catch(err){res.status(500).send(err.message);}
+});
+
+// -------------------- CAIXA --------------------
+app.get('/caixa', async(req,res)=>{
+  try{const result = await pool.query('SELECT * FROM caixa ORDER BY id DESC'); res.json(result.rows);}
+  catch(err){res.status(500).send(err.message);}
+});
+
+app.post('/caixa', async(req,res)=>{
+  const {descricao,valor,tipo,data} = req.body;
+  try{
+    const result = await pool.query(
+      'INSERT INTO caixa (descricao,valor,tipo,data) VALUES ($1,$2,$3,$4) RETURNING *',
+      [descricao,valor,tipo,data]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
+});
+
+app.put('/caixa/:id', async(req,res)=>{
+  const {id} = req.params;
+  const {descricao,valor,tipo,data} = req.body;
+  try{
+    const result = await pool.query(
+      'UPDATE caixa SET descricao=$1,valor=$2,tipo=$3,data=$4 WHERE id=$5 RETURNING *',
+      [descricao,valor,tipo,data,id]
+    );
+    res.json(result.rows[0]);
+  }catch(err){res.status(500).send(err.message);}
+});
+
+app.delete('/caixa/:id', async(req,res)=>{
+  const {id} = req.params;
+  try{
+    await pool.query('DELETE FROM caixa WHERE id=$1',[id]);
+    res.json({message:'Registro de caixa deletado!'});
+  }catch(err){res.status(500).send(err.message);}
+});
+
+// -------------------- START SERVER --------------------
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`✅ Servidor rodando na porta ${PORT}`));
+app.listen(PORT, ()=>{
+  console.log(`🚀 Bankai ERP API funcionando na porta ${PORT}!`);
+});
